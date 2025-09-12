@@ -92,3 +92,13 @@ body {
     color: #cc0000;
     text-align: center;
 }
+
+/* Already judged text styling */
+.already-judged {
+    color: #28a745 !important; /* Bootstrap green */
+    font-size: 0.85rem; /* Smaller text */
+    font-weight: 500;
+    margin-right: 10px;
+    display: inline-block;
+    vertical-align: middle;
+}

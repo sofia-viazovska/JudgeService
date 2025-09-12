@@ -21,7 +21,17 @@ def dashboard(request):
 def team_list(request):
     """View to display all teams for selection"""
     teams = Team.objects.all()
-    return render(request, 'judging/team_list.html', {'teams': teams})
+
+    # For non-admin users, check which teams they have already judged
+    judged_teams = set()
+    if not (request.user.is_staff or request.user.is_superuser):
+        # Get all teams that have at least one score from this judge
+        judged_teams = set(Score.objects.filter(judge=request.user).values_list('team_id', flat=True).distinct())
+
+    return render(request, 'judging/team_list.html', {
+        'teams': teams,
+        'judged_teams': judged_teams
+    })
 
 @login_required
 def judge_team(request, team_id):
