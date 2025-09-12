@@ -1,0 +1,101 @@
+{% extends 'judging/base.html' %}
+
+{% block title %}Judge Dashboard - Judging Service{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Judge Dashboard</h1>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2>Welcome, {{ user.first_name }} {{ user.last_name }}</h2>
+            </div>
+            <div class="card-body">
+                {% if not user.is_staff and not user.is_superuser %}
+                <p>From this dashboard, you can select teams to judge and assign scores for each criterion.</p>
+                <a href="{% url 'team_list' %}" class="btn btn-primary">View Teams to Judge</a>
+                {% else %}
+                <p>As an admin user, you can view detailed scores from all judges but cannot judge teams yourself.</p>
+                <a href="{% url 'admin_detailed_scores' %}" class="btn btn-primary">View Detailed Scores</a>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if not user.is_staff and not user.is_superuser %}
+        <div class="card">
+            <div class="card-header">
+                <h3>Teams Available for Judging</h3>
+            </div>
+            <div class="card-body">
+                {% if teams %}
+                <div class="list-group">
+                    {% for team in teams %}
+                    <a href="{% url 'judge_team' team.id %}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ team.name }}</h5>
+                        </div>
+                        <p class="mb-1">{{ team.description|truncatechars:100 }}</p>
+                        <small>Click to judge this team</small>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p>No teams are available for judging at this time.</p>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <div class="card">
+            <div class="card-header">
+                <h3>Admin Functions</h3>
+            </div>
+            <div class="card-body">
+                <p>As an admin, you have access to the following functions:</p>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <a href="{% url 'admin_detailed_scores' %}" class="btn btn-outline-primary">View Detailed Scores</a>
+                        <p class="mt-2 mb-0"><small>See all scores from all judges for all teams</small></p>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="{% url 'results' %}" class="btn btn-outline-primary">View Results Summary</a>
+                        <p class="mt-2 mb-0"><small>See the aggregated results and team rankings</small></p>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="/admin/" class="btn btn-outline-primary">Django Admin</a>
+                        <p class="mt-2 mb-0"><small>Access the Django admin interface</small></p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                {% if not user.is_staff and not user.is_superuser %}
+                <h3>Judging Guidelines</h3>
+                {% else %}
+                <h3>Admin Guidelines</h3>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    {% if not user.is_staff and not user.is_superuser %}
+                    <li class="list-group-item">Score each criterion from 0 to 10</li>
+                    <li class="list-group-item">Be consistent in your scoring across teams</li>
+                    <li class="list-group-item">Consider each criterion independently</li>
+                    <li class="list-group-item">You can update your scores at any time</li>
+                    {% else %}
+                    <li class="list-group-item">Admin users can view all scores but cannot judge teams</li>
+                    <li class="list-group-item">Use the Detailed Scores view to see individual scores from each judge</li>
+                    <li class="list-group-item">Use the Results view to see aggregated scores and rankings</li>
+                    <li class="list-group-item">Use the Django Admin interface for advanced management</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

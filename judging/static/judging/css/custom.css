@@ -1,0 +1,94 @@
+/* Light Grey-White with Red Accents Theme */
+
+/* Navbar styling */
+.navbar {
+    background-color: #e0e0e0 !important; /* Light Grey */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-bottom: 5px solid #cc0000 !important; /* Red accent line */
+}
+
+.navbar-light .navbar-brand, 
+.navbar-light .nav-link {
+    color: #333333 !important; /* Dark gray for contrast on light grey background */
+}
+
+.navbar-light .nav-link:hover {
+    color: #000000 !important; /* Black on hover for better visibility */
+}
+
+/* Button styling */
+.btn-primary {
+    background-color: #5e5959 !important; /* Medium grey */
+    border-color: #5e5959 !important;
+    color: #ffffff !important;
+    border-left: 5px solid #cc0000 !important; /* Red accent */
+}
+
+.btn-primary:hover {
+    background-color: #c0c0c0 !important; /* Lighter grey on hover */
+    border-color: #5e5959 !important;
+}
+
+.btn-secondary {
+    background-color: #a0a0a0 !important; /* Medium grey */
+    border-color: #5e5959 !important;
+}
+
+.btn-secondary:hover {
+    background-color: #c0c0c0 !important; /* Lighter grey on hover */
+    border-color: #5e5959 !important;
+}
+
+/* Card styling */
+.card-header {
+    background-color: #5e5959 !important; /* Medium grey */
+    color: #ffffff !important; /* White */
+    border-left: 3px solid #cc0000 !important; /* Red accent */
+}
+
+.card {
+    border-color: #dddddd !important;
+    border-top: 1px solid #f0f0f0 !important; /* Light gray top border */
+}
+
+/* Table styling */
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f9f9f9 !important; /* Light gray */
+}
+
+.table thead th {
+    background-color: #5e5959 !important; /* Medium grey */
+    color: #ffffff !important; /* White */
+    border-bottom: 2px solid #cc0000 !important; /* Red accent */
+}
+
+/* Alert styling */
+.alert-info {
+    background-color: #f8f9fa !important;
+    border-color: #dddddd !important;
+    color: #333333 !important;
+}
+
+/* Body styling */
+body {
+    background-color: #ffffff !important; /* White */
+    color: #333333 !important; /* Dark gray */
+}
+
+/* Logo placeholder styling */
+.logo-container {
+    height: 40px;
+    width: 40px;
+    background-color: #ffffff;
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+}
+
+.logo-placeholder {
+    font-size: 12px;
+    color: #cc0000;
+    text-align: center;
+}

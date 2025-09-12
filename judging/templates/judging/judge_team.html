@@ -1,0 +1,95 @@
+{% extends 'judging/base.html' %}
+{% load custom_filters %}
+
+{% block title %}Judge {{ team.name }} - Judging Service{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Judge Team: {{ team.name }}</h1>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h3>Team Information</h3>
+    </div>
+    <div class="card-body">
+        <h4>{{ team.name }}</h4>
+        <p>{{ team.description }}</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3>Scoring Form</h3>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="alert alert-info">
+                <p>Please score each criterion from 0 to 10, where 0 is the lowest and 10 is the highest.</p>
+            </div>
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Criterion</th>
+                        <th>Description</th>
+                        <th>Score (0-10)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for criteria in criteria_list %}
+                    <tr>
+                        <td>{{ criteria.name }}</td>
+                        <td>{{ criteria.description }}</td>
+                        <td>
+                            <input 
+                                type="number" 
+                                name="criteria_{{ criteria.id }}" 
+                                min="0" 
+                                max="10" 
+                                class="form-control score-input" 
+                                value="{{ existing_scores|get_item:criteria.id|default:'' }}"
+                                required
+                            >
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{% url 'team_list' %}" class="btn btn-secondary me-md-2">Cancel</a>
+                <button type="submit" class="btn btn-primary">Submit Scores</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Simple validation to ensure scores are between 0 and 10
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(event) {
+            const inputs = document.querySelectorAll('input[type="number"]');
+            let valid = true;
+
+            inputs.forEach(function(input) {
+                const value = parseInt(input.value);
+                if (isNaN(value) || value < 0 || value > 10) {
+                    valid = false;
+                    input.classList.add('is-invalid');
+                } else {
+                    input.classList.remove('is-invalid');
+                }
+            });
+
+            if (!valid) {
+                event.preventDefault();
+                alert('Please ensure all scores are between 0 and 10.');
+            }
+        });
+    });
+</script>
+{% endblock %}
