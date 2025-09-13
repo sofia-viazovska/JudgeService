@@ -1,0 +1,17 @@
+#!/bin/bash
+# Build the project
+echo "Building the project..."
+python -m pip install -r requirements.txt
+
+# Collect static files
+echo "Collecting static files..."
+python manage.py collectstatic --noinput --clear
+
+# Make directory for static files
+mkdir -p staticfiles_build/static
+
+# Copy static files
+cp -r static/ staticfiles_build/static/
+cp -r judging/static/ staticfiles_build/static/
+
+echo "Build completed successfully!"
