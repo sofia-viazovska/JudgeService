@@ -9,9 +9,10 @@ python manage.py collectstatic --noinput --clear
 
 # Make directory for static files
 mkdir -p staticfiles_build/static
+mkdir -p staticfiles_build/static/judging
 
 # Copy static files
 cp -r static/ staticfiles_build/static/
-cp -r judging/static/ staticfiles_build/static/
+cp -r judging/static/judging/ staticfiles_build/static/judging/
 
 echo "Build completed successfully!"
