@@ -15,7 +15,11 @@ mkdir -p staticfiles_build/static/judging/images
 
 # Copy static files
 cp -r static/ staticfiles_build/static/
-cp -r judging/static/judging/css/ staticfiles_build/static/judging/css/
-cp -r judging/static/judging/images/ staticfiles_build/static/judging/images/
+
+# Copy CSS files
+cp -r judging/static/judging/css/* staticfiles_build/static/judging/css/
+
+# Copy image files
+cp -r judging/static/judging/images/* staticfiles_build/static/judging/images/
 
 echo "Build completed successfully!"
