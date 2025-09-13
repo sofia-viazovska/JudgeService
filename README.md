@@ -28,7 +28,7 @@ This project is configured for deployment on Vercel. Follow these steps to deplo
    ```
    vercel
    ```
-   
+
    Or deploy directly from the Vercel dashboard:
    - Connect your GitHub/GitLab/Bitbucket account
    - Import this repository
@@ -45,19 +45,25 @@ The following files are used for Vercel deployment:
 
 ### Environment Variables
 
-For production deployment, consider setting these environment variables in the Vercel dashboard:
+For production deployment, set these environment variables in the Vercel dashboard:
 
 - `SECRET_KEY`: A secure Django secret key
 - `DEBUG`: Set to 'False' for production
+- `DATABASE_URL`: Connection string for your database (see below)
 
 ### Database Configuration
 
-This project uses SQLite by default, which is not suitable for production on Vercel due to its serverless nature. For production, consider using:
+This project is now configured to use a PostgreSQL database in production via the DATABASE_URL environment variable, with a fallback to SQLite for local development.
 
-- Vercel Postgres
-- Other database services like Supabase, Neon, or Railway
+For production on Vercel, you should use:
 
-Update the `DATABASES` configuration in `settings.py` accordingly.
+- Vercel Postgres: Set `DATABASE_URL` to the connection string provided by Vercel
+- Other database services: Set `DATABASE_URL` to the appropriate connection string format:
+  - PostgreSQL: `postgres://user:password@host:port/database`
+  - MySQL: `mysql://user:password@host:port/database`
+  - SQLite: `sqlite:///path/to/db.sqlite3` (not recommended for production)
+
+The application will automatically use the database specified in the DATABASE_URL environment variable.
 
 ### Static Files
 
