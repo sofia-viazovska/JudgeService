@@ -18,15 +18,26 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
+# Quick-start development settings - unsuitable for productionЬш
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY', "django-insecure-tv2hj&fs87#=n#jg^1_k=96_q!8o6*t_*+0phdj1y$v1jotnx(")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG") != "False"
-ALLOWED_HOSTS = ['192.168.9.180', '.vercel.app', '.now.sh', '127.0.0.1', 'localhost']
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = False
+
+ALLOWED_HOSTS = [
+    "127.0.0.1", "localhost",
+    ".vercel.app", ".now.sh",
+    "192.168.9.180",
+    "<sofiiaV>.pythonanywhere.com",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://<sofiiaV>.pythonanywhere.com",
+]
 
 # Application definition
 
@@ -119,7 +130,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = "static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles", "static")
+STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
 
 # Additional locations of static files
 STATICFILES_DIRS = [
