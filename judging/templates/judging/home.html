@@ -1,45 +1,45 @@
 {% extends 'judging/base.html' %}
 
-{% block title %}Home - Judging Service{% endblock %}
+{% block title %}Головна - Сервіс Оцінювання{% endblock %}
 
 {% block content %}
 <div class="jumbotron">
-    <h1 class="display-4">Welcome to the Judging Service</h1>
-    <p class="lead">A platform for judges to evaluate teams based on multiple criteria.</p>
+    <h1 class="display-4">Ласкаво просимо до Сервісу Оцінювання</h1>
+    <p class="lead">Платформа для суддів для оцінювання команд за кількома критеріями.</p>
     <hr class="my-4">
     {% if user.is_authenticated and user.is_staff %}
-    <p>As an admin, you can view all scores from all judges but cannot judge teams yourself.</p>
-    <a class="btn btn-primary btn-lg" href="{% url 'admin_detailed_scores' %}" role="button">View Detailed Scores</a>
-    <a class="btn btn-primary btn-lg" href="{% url 'dashboard' %}" role="button">Go to Dashboard</a>
+    <p>Як адміністратор, ви можете переглядати всі оцінки від усіх суддів, але не можете оцінювати команди самостійно.</p>
+    <a class="btn btn-primary btn-lg" href="{% url 'admin_detailed_scores' %}" role="button">Переглянути детальні оцінки</a>
+    <a class="btn btn-primary btn-lg" href="{% url 'dashboard' %}" role="button">Перейти до панелі керування</a>
     {% else %}
-    <p>Judges can log in, select teams to judge, and assign scores from 0 to 10 for each criterion.</p>
+    <p>Судді можуть увійти, вибрати команди для оцінювання та призначити оцінки від 0 до 10 за кожним критерієм.</p>
     {% if user.is_authenticated %}
-        <a class="btn btn-primary btn-lg" href="{% url 'dashboard' %}" role="button">Go to Dashboard</a>
+        <a class="btn btn-primary btn-lg" href="{% url 'dashboard' %}" role="button">Перейти до панелі керування</a>
     {% else %}
-        <a class="btn btn-primary btn-lg" href="{% url 'login' %}" role="button">Login as Judge</a>
+        <a class="btn btn-primary btn-lg" href="{% url 'login' %}" role="button">Увійти як суддя</a>
     {% endif %}
     {% endif %}
 
-    <a class="btn btn-secondary btn-lg" href="{% url 'results' %}" role="button">View Results</a>
+    <a class="btn btn-secondary btn-lg" href="{% url 'results' %}" role="button">Переглянути результати</a>
 </div>
 
 <div class="row mt-5">
     <div class="col-md-4">
         {% if user.is_authenticated and user.is_staff %}
-        <h2>For Admins</h2>
-        <p>As an admin, you can view detailed scores from all judges but cannot judge teams yourself.</p>
+        <h2>Для адміністраторів</h2>
+        <p>Як адміністратор, ви можете переглядати детальні оцінки від усіх суддів, але не можете оцінювати команди самостійно.</p>
         {% else %}
-        <h2>For Judges</h2>
-        <p>Log in to access your judging dashboard, where you can select teams to evaluate and assign scores.</p>
+        <h2>Для суддів</h2>
+        <p>Увійдіть, щоб отримати доступ до панелі оцінювання, де ви можете вибрати команди для оцінювання та призначити оцінки.</p>
         {% endif %}
     </div>
     <div class="col-md-4">
-        <h2>Scoring System</h2>
-        <p>Teams are scored on 10 different criteria, with each criterion receiving a score from 0 to 10.</p>
+        <h2>Система оцінювання</h2>
+        <p>Команди оцінюються за 10 різними критеріями, кожен з яких отримує оцінку від 0 до 10.</p>
     </div>
     <div class="col-md-4">
-        <h2>Results</h2>
-        <p>Team scores are calculated by averaging the scores from all judges for each criterion, then summing these averages.</p>
+        <h2>Результати</h2>
+        <p>Оцінки команд розраховуються шляхом усереднення оцінок від усіх суддів за кожним критерієм, а потім підсумовування цих середніх значень.</p>
     </div>
 </div>
 {% endblock %}

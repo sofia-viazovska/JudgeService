@@ -1,39 +1,39 @@
 {% extends 'judging/base.html' %}
 {% load custom_filters %}
 
-{% block title %}Judge {{ team.name }} - Judging Service{% endblock %}
+{% block title %}Оцінювання {{ team.name }} - Сервіс Оцінювання{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">Judge Team: {{ team.name }}</h1>
+<h1 class="mb-4">Оцінювання команди: {{ team.name }}</h1>
 
 <div class="card mb-4">
     <div class="card-header">
-        <h3>Team Information</h3>
+        <h3>Інформація про команду</h3>
     </div>
     <div class="card-body">
         <h4>{{ team.name }}</h4>
-        <p>{{ team.description }}</p>
+        <p>{{ team.members }}</p>
     </div>
 </div>
 
 <div class="card">
     <div class="card-header">
-        <h3>Scoring Form</h3>
+        <h3>Форма оцінювання</h3>
     </div>
     <div class="card-body">
         <form method="post">
             {% csrf_token %}
 
             <div class="alert alert-info">
-                <p>Please score each criterion from 0 to 10, where 0 is the lowest and 10 is the highest.</p>
+                <p>Будь ласка, оцініть кожен критерій від 0 до 10, де 0 - найнижча оцінка, а 10 - найвища.</p>
             </div>
 
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Criterion</th>
-                        <th>Description</th>
-                        <th>Score (0-10)</th>
+                        <th>Критерій</th>
+                        <th>Опис</th>
+                        <th>Оцінка (0-10)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -58,8 +58,8 @@
             </table>
 
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <a href="{% url 'team_list' %}" class="btn btn-secondary me-md-2">Cancel</a>
-                <button type="submit" class="btn btn-primary">Submit Scores</button>
+                <a href="{% url 'team_list' %}" class="btn btn-secondary me-md-2">Скасувати</a>
+                <button type="submit" class="btn btn-primary">Відправити оцінки</button>
             </div>
         </form>
     </div>
@@ -87,7 +87,7 @@
 
             if (!valid) {
                 event.preventDefault();
-                alert('Please ensure all scores are between 0 and 10.');
+                alert('Будь ласка, переконайтеся, що всі оцінки знаходяться в межах від 0 до 10.');
             }
         });
     });

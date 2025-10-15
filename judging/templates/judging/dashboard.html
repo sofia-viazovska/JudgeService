@@ -1,23 +1,23 @@
 {% extends 'judging/base.html' %}
 
-{% block title %}Judge Dashboard - Judging Service{% endblock %}
+{% block title %}Панель судді - Сервіс Оцінювання{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">Judge Dashboard</h1>
+<h1 class="mb-4">Панель судді</h1>
 
 <div class="row">
     <div class="col-md-8">
         <div class="card mb-4">
             <div class="card-header">
-                <h2>Welcome, {{ user.first_name }} {{ user.last_name }}</h2>
+                <h2>Вітаємо, {{ user.first_name }} {{ user.last_name }}</h2>
             </div>
             <div class="card-body">
                 {% if not user.is_staff and not user.is_superuser %}
-                <p>From this dashboard, you can select teams to judge and assign scores for each criterion.</p>
-                <a href="{% url 'team_list' %}" class="btn btn-primary">View Teams to Judge</a>
+                <p>З цієї панелі ви можете вибрати команди для оцінювання та призначити бали за кожним критерієм.</p>
+                <a href="{% url 'team_list' %}" class="btn btn-primary">Переглянути команди для оцінювання</a>
                 {% else %}
-                <p>As an admin user, you can view detailed scores from all judges but cannot judge teams yourself.</p>
-                <a href="{% url 'admin_detailed_scores' %}" class="btn btn-primary">View Detailed Scores</a>
+                <p>Як адміністратор, ви можете переглядати детальні оцінки від усіх суддів, але не можете оцінювати команди самостійно.</p>
+                <a href="{% url 'admin_detailed_scores' %}" class="btn btn-primary">Переглянути детальні оцінки</a>
                 {% endif %}
             </div>
         </div>
@@ -25,7 +25,7 @@
         {% if not user.is_staff and not user.is_superuser %}
         <div class="card">
             <div class="card-header">
-                <h3>Teams Available for Judging</h3>
+                <h3>Команди доступні для оцінювання</h3>
             </div>
             <div class="card-body">
                 {% if teams %}
@@ -36,34 +36,34 @@
                             <h5 class="mb-1">{{ team.name }}</h5>
                         </div>
                         <p class="mb-1">{{ team.description|truncatechars:100 }}</p>
-                        <small>Click to judge this team</small>
+                        <small>Натисніть, щоб оцінити цю команду</small>
                     </a>
                     {% endfor %}
                 </div>
                 {% else %}
-                <p>No teams are available for judging at this time.</p>
+                <p>На даний момент немає команд, доступних для оцінювання.</p>
                 {% endif %}
             </div>
         </div>
         {% else %}
         <div class="card">
             <div class="card-header">
-                <h3>Admin Functions</h3>
+                <h3>Функції адміністратора</h3>
             </div>
             <div class="card-body">
-                <p>As an admin, you have access to the following functions:</p>
+                <p>Як адміністратор, ви маєте доступ до наступних функцій:</p>
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item">
-                        <a href="{% url 'admin_detailed_scores' %}" class="btn btn-outline-primary">View Detailed Scores</a>
-                        <p class="mt-2 mb-0"><small>See all scores from all judges for all teams</small></p>
+                        <a href="{% url 'admin_detailed_scores' %}" class="btn btn-outline-primary">Переглянути детальні оцінки</a>
+                        <p class="mt-2 mb-0"><small>Перегляд усіх оцінок від усіх суддів для всіх команд</small></p>
                     </li>
                     <li class="list-group-item">
-                        <a href="{% url 'results' %}" class="btn btn-outline-primary">View Results Summary</a>
-                        <p class="mt-2 mb-0"><small>See the aggregated results and team rankings</small></p>
+                        <a href="{% url 'results' %}" class="btn btn-outline-primary">Переглянути підсумки результатів</a>
+                        <p class="mt-2 mb-0"><small>Перегляд узагальнених результатів та рейтингу команд</small></p>
                     </li>
                     <li class="list-group-item">
-                        <a href="/admin/" class="btn btn-outline-primary">Django Admin</a>
-                        <p class="mt-2 mb-0"><small>Access the Django admin interface</small></p>
+                        <a href="/admin/" class="btn btn-outline-primary">Адмін-панель Django</a>
+                        <p class="mt-2 mb-0"><small>Доступ до інтерфейсу адміністратора Django</small></p>
                     </li>
                 </ul>
             </div>
@@ -75,23 +75,23 @@
         <div class="card">
             <div class="card-header">
                 {% if not user.is_staff and not user.is_superuser %}
-                <h3>Judging Guidelines</h3>
+                <h3>Інструкції для суддів</h3>
                 {% else %}
-                <h3>Admin Guidelines</h3>
+                <h3>Інструкції для адміністраторів</h3>
                 {% endif %}
             </div>
             <div class="card-body">
                 <ul class="list-group list-group-flush">
                     {% if not user.is_staff and not user.is_superuser %}
-                    <li class="list-group-item">Score each criterion from 0 to 10</li>
-                    <li class="list-group-item">Be consistent in your scoring across teams</li>
-                    <li class="list-group-item">Consider each criterion independently</li>
-                    <li class="list-group-item">You can update your scores at any time</li>
+                    <li class="list-group-item">Оцінюйте кожен критерій від 0 до 10</li>
+                    <li class="list-group-item">Будьте послідовні в оцінюванні всіх команд</li>
+                    <li class="list-group-item">Розглядайте кожен критерій незалежно</li>
+                    <li class="list-group-item">Ви можете оновлювати свої оцінки в будь-який час</li>
                     {% else %}
-                    <li class="list-group-item">Admin users can view all scores but cannot judge teams</li>
-                    <li class="list-group-item">Use the Detailed Scores view to see individual scores from each judge</li>
-                    <li class="list-group-item">Use the Results view to see aggregated scores and rankings</li>
-                    <li class="list-group-item">Use the Django Admin interface for advanced management</li>
+                    <li class="list-group-item">Адміністратори можуть переглядати всі оцінки, але не можуть оцінювати команди</li>
+                    <li class="list-group-item">Використовуйте перегляд детальних оцінок, щоб бачити індивідуальні оцінки від кожного судді</li>
+                    <li class="list-group-item">Використовуйте перегляд результатів, щоб бачити узагальнені оцінки та рейтинги</li>
+                    <li class="list-group-item">Використовуйте інтерфейс адміністратора Django для розширеного управління</li>
                     {% endif %}
                 </ul>
             </div>

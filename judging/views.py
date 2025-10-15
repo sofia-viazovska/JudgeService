@@ -38,7 +38,7 @@ def judge_team(request, team_id):
     """View to judge a specific team"""
     # Prevent admin users from judging teams
     if request.user.is_staff or request.user.is_superuser:
-        messages.error(request, "Admin users cannot judge teams.")
+        messages.error(request, "Адміністратори не можуть оцінювати команди.")
         return redirect('results')
 
     team = get_object_or_404(Team, id=team_id)
@@ -67,10 +67,10 @@ def judge_team(request, team_id):
                             defaults={'score': score_value}
                         )
                 except ValueError:
-                    messages.error(request, f"Invalid score for {criteria.name}. Please enter a number between 0 and 10.")
+                    messages.error(request, f"Недійсна оцінка для {criteria.name}. Будь ласка, введіть число від 0 до 10.")
                     return redirect('judge_team', team_id=team.id)
 
-        messages.success(request, f"Scores for {team.name} have been saved successfully.")
+        messages.success(request, f"Оцінки для {team.name} були успішно збережені.")
         return redirect('team_list')
 
     context = {
@@ -108,7 +108,7 @@ def admin_detailed_scores(request):
     """Admin-only view to display detailed scores from all judges"""
     # Only allow admin users to access this view
     if not (request.user.is_staff or request.user.is_superuser):
-        messages.error(request, "You don't have permission to view detailed scores.")
+        messages.error(request, "У вас немає дозволу на перегляд детальних оцінок.")
         return redirect('results')
 
     teams = Team.objects.all()

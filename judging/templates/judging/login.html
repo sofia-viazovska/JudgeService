@@ -1,35 +1,35 @@
 {% extends 'judging/base.html' %}
 
-{% block title %}Login - Judging Service{% endblock %}
+{% block title %}Вхід - Сервіс Оцінювання{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-6">
         <div class="card">
             <div class="card-header">
-                <h2 class="text-center">Judge Login</h2>
+                <h2 class="text-center">Вхід для суддів</h2>
             </div>
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
-                    
+
                     <div class="mb-3">
-                        <label for="id_username" class="form-label">Username</label>
+                        <label for="id_username" class="form-label">Ім'я користувача</label>
                         <input type="text" name="username" id="id_username" class="form-control" required>
                     </div>
-                    
+
                     <div class="mb-3">
-                        <label for="id_password" class="form-label">Password</label>
+                        <label for="id_password" class="form-label">Пароль</label>
                         <input type="password" name="password" id="id_password" class="form-control" required>
                     </div>
-                    
+
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">Login</button>
+                        <button type="submit" class="btn btn-primary">Увійти</button>
                     </div>
                 </form>
             </div>
             <div class="card-footer text-center">
-                <p class="mb-0">Only authorized judges can access the judging system.</p>
+                <p class="mb-0">Тільки авторизовані судді мають доступ до системи оцінювання.</p>
             </div>
         </div>
     </div>

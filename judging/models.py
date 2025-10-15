@@ -7,6 +7,8 @@ from django.db.models import Avg, Sum
 class Team(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
+    members = models.TextField(blank=True, help_text="List of team members, one per line")
+    members_info = models.TextField(blank=True, help_text="Additional information about team members in format: Student - leader, university, year of study")
 
     def __str__(self):
         return self.name
