@@ -31,7 +31,8 @@ ALLOWED_HOSTS = [
     "127.0.0.1", "localhost",
     ".vercel.app", ".now.sh",
     "192.168.9.180",
-    "<sofiiaV>.pythonanywhere.com",
+    "sofiiaV.pythonanywhere.com",
+    "sofiiav.pythonanywhere.com",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
