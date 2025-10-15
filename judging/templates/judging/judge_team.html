@@ -13,6 +13,35 @@
     <div class="card-body">
         <h4>{{ team.name }}</h4>
         <p>{{ team.members }}</p>
+
+        {% if is_admin %}
+        <!-- Service selection form for admins -->
+        <div class="mt-4">
+            <h5>Вибір сервісу (технологічного вектору)</h5>
+            <form method="post" class="mt-3">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ service_form.service.id_for_label }}">Сервіс:</label>
+                            {{ service_form.service }}
+                        </div>
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end">
+                        <button type="submit" name="save_service" class="btn btn-primary">Зберегти сервіс</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        {% else %}
+        <!-- Display selected service for jury -->
+        {% if team.service %}
+        <div class="mt-3">
+            <h5>Технологічний вектор команди:</h5>
+            <p class="lead">{{ team.get_service_display }}</p>
+        </div>
+        {% endif %}
+        {% endif %}
     </div>
 </div>
 
@@ -21,45 +50,218 @@
         <h3>Форма оцінювання</h3>
     </div>
     <div class="card-body">
-        <form method="post">
+        <form method="post" id="score-form">
             {% csrf_token %}
 
             <div class="alert alert-info">
-                <p>Будь ласка, оцініть кожен критерій від 0 до 10, де 0 - найнижча оцінка, а 10 - найвища.</p>
+                <p>Відмітьте критерії, які команда виконала. Бали будуть нараховані автоматично.</p>
             </div>
 
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Критерій</th>
-                        <th>Опис</th>
-                        <th>Оцінка (0-10)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for criteria in criteria_list %}
-                    <tr>
-                        <td>{{ criteria.name }}</td>
-                        <td>{{ criteria.description }}</td>
-                        <td>
-                            <input 
-                                type="number" 
-                                name="criteria_{{ criteria.id }}" 
-                                min="0" 
-                                max="10" 
-                                class="form-control score-input" 
-                                value="{{ existing_scores|get_item:criteria.id|default:'' }}"
-                                required
-                            >
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <!-- Main criteria section -->
+            <div class="criteria-section mb-4">
+                <h4>Основні критерії</h4>
+
+                <!-- Main functionality -->
+                <div class="criteria-category mb-3">
+                    <h5>Основна функціональність:</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40%">Критерій</th>
+                                    <th style="width: 45%">Опис</th>
+                                    <th style="width: 10%">Бали</th>
+                                    <th style="width: 5%">Виконано</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for criteria in main_criteria %}
+                                {% if "функціональність" in criteria.description %}
+                                <tr>
+                                    <td>{{ criteria.name }}</td>
+                                    <td>{{ criteria.description }}</td>
+                                    <td>{{ criteria.points }}</td>
+                                    <td class="text-center">
+                                        <input 
+                                            type="checkbox" 
+                                            name="criteria_{{ criteria.id }}" 
+                                            class="form-check-input criteria-checkbox" 
+                                            data-points="{{ criteria.points }}"
+                                            {% if existing_scores|get_item:criteria.id %}checked{% endif %}
+                                        >
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- UI/UX and stability -->
+                <div class="criteria-category mb-3">
+                    <h5>UI/UX та стабільність:</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40%">Критерій</th>
+                                    <th style="width: 45%">Опис</th>
+                                    <th style="width: 10%">Бали</th>
+                                    <th style="width: 5%">Виконано</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for criteria in main_criteria %}
+                                {% if "UI/UX" in criteria.description %}
+                                <tr>
+                                    <td>{{ criteria.name }}</td>
+                                    <td>{{ criteria.description }}</td>
+                                    <td>{{ criteria.points }}</td>
+                                    <td class="text-center">
+                                        <input 
+                                            type="checkbox" 
+                                            name="criteria_{{ criteria.id }}" 
+                                            class="form-check-input criteria-checkbox" 
+                                            data-points="{{ criteria.points }}"
+                                            {% if existing_scores|get_item:criteria.id %}checked{% endif %}
+                                        >
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Engineering quality -->
+                <div class="criteria-category mb-3">
+                    <h5>Якість інженерних рішень:</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40%">Критерій</th>
+                                    <th style="width: 45%">Опис</th>
+                                    <th style="width: 10%">Бали</th>
+                                    <th style="width: 5%">Виконано</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for criteria in main_criteria %}
+                                {% if "інженерних" in criteria.description %}
+                                <tr>
+                                    <td>{{ criteria.name }}</td>
+                                    <td>{{ criteria.description }}</td>
+                                    <td>{{ criteria.points }}</td>
+                                    <td class="text-center">
+                                        <input 
+                                            type="checkbox" 
+                                            name="criteria_{{ criteria.id }}" 
+                                            class="form-check-input criteria-checkbox" 
+                                            data-points="{{ criteria.points }}"
+                                            {% if existing_scores|get_item:criteria.id %}checked{% endif %}
+                                        >
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Project explanation -->
+                <div class="criteria-category mb-3">
+                    <h5>Пояснення проекту:</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40%">Критерій</th>
+                                    <th style="width: 45%">Опис</th>
+                                    <th style="width: 10%">Бали</th>
+                                    <th style="width: 5%">Виконано</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for criteria in main_criteria %}
+                                {% if "пояснення" in criteria.description %}
+                                <tr>
+                                    <td>{{ criteria.name }}</td>
+                                    <td>{{ criteria.description }}</td>
+                                    <td>{{ criteria.points }}</td>
+                                    <td class="text-center">
+                                        <input 
+                                            type="checkbox" 
+                                            name="criteria_{{ criteria.id }}" 
+                                            class="form-check-input criteria-checkbox" 
+                                            data-points="{{ criteria.points }}"
+                                            {% if existing_scores|get_item:criteria.id %}checked{% endif %}
+                                        >
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="alert alert-success">
+                    <strong>Загальна сума балів за основні критерії: <span id="main-total">0</span></strong>
+                </div>
+            </div>
+
+            <!-- Bonus criteria section -->
+            {% if bonus_criteria %}
+            <div class="criteria-section mb-4">
+                <h4>Додаткові (бонусні) критерії для вектору "{{ team.get_service_display }}"</h4>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th style="width: 40%">Критерій</th>
+                                <th style="width: 45%">Опис</th>
+                                <th style="width: 10%">Бали</th>
+                                <th style="width: 5%">Виконано</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for criteria in bonus_criteria %}
+                            <tr>
+                                <td>{{ criteria.name }}</td>
+                                <td>{{ criteria.description }}</td>
+                                <td>{{ criteria.points }}</td>
+                                <td class="text-center">
+                                    <input 
+                                        type="checkbox" 
+                                        name="criteria_{{ criteria.id }}" 
+                                        class="form-check-input criteria-checkbox bonus-checkbox" 
+                                        data-points="{{ criteria.points }}"
+                                        {% if existing_scores|get_item:criteria.id %}checked{% endif %}
+                                    >
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="alert alert-success">
+                    <strong>Загальна сума балів за додаткові критерії: <span id="bonus-total">0</span></strong>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="alert alert-primary">
+                <h4>Загальна сума балів: <span id="grand-total">0</span></h4>
+            </div>
 
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                 <a href="{% url 'team_list' %}" class="btn btn-secondary me-md-2">Скасувати</a>
-                <button type="submit" class="btn btn-primary">Відправити оцінки</button>
+                <button type="submit" name="save_scores" class="btn btn-primary">Відправити оцінки</button>
             </div>
         </form>
     </div>
@@ -68,28 +270,46 @@
 
 {% block extra_js %}
 <script>
-    // Simple validation to ensure scores are between 0 and 10
     document.addEventListener('DOMContentLoaded', function() {
-        const form = document.querySelector('form');
-        form.addEventListener('submit', function(event) {
-            const inputs = document.querySelectorAll('input[type="number"]');
-            let valid = true;
+        const checkboxes = document.querySelectorAll('.criteria-checkbox');
+        const mainTotalElement = document.getElementById('main-total');
+        const bonusTotalElement = document.getElementById('bonus-total');
+        const grandTotalElement = document.getElementById('grand-total');
 
-            inputs.forEach(function(input) {
-                const value = parseInt(input.value);
-                if (isNaN(value) || value < 0 || value > 10) {
-                    valid = false;
-                    input.classList.add('is-invalid');
-                } else {
-                    input.classList.remove('is-invalid');
+        // Function to calculate and update totals
+        function updateTotals() {
+            let mainTotal = 0;
+            let bonusTotal = 0;
+
+            // Calculate main criteria total
+            document.querySelectorAll('.criteria-checkbox:not(.bonus-checkbox)').forEach(function(checkbox) {
+                if (checkbox.checked) {
+                    mainTotal += parseFloat(checkbox.dataset.points);
                 }
             });
 
-            if (!valid) {
-                event.preventDefault();
-                alert('Будь ласка, переконайтеся, що всі оцінки знаходяться в межах від 0 до 10.');
+            // Calculate bonus criteria total
+            document.querySelectorAll('.bonus-checkbox').forEach(function(checkbox) {
+                if (checkbox.checked) {
+                    bonusTotal += parseFloat(checkbox.dataset.points);
+                }
+            });
+
+            // Update the display
+            mainTotalElement.textContent = mainTotal.toFixed(1);
+            if (bonusTotalElement) {
+                bonusTotalElement.textContent = bonusTotal.toFixed(1);
             }
+            grandTotalElement.textContent = (mainTotal + bonusTotal).toFixed(1);
+        }
+
+        // Add event listeners to all checkboxes
+        checkboxes.forEach(function(checkbox) {
+            checkbox.addEventListener('change', updateTotals);
         });
+
+        // Initial calculation
+        updateTotals();
     });
 </script>
 {% endblock %}
