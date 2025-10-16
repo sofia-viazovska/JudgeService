@@ -85,6 +85,8 @@ body {
     align-items: center !important;
     justify-content: center !important;
     border-radius: 4px !important;
+    /*overflow: hidden !important;*/
+    /*max-height: 100% !important;*/
 }
 .navbar .logo-image {
     max-width: 100% !important;
@@ -93,6 +95,7 @@ body {
     height: auto !important;
     display: block !important;
     object-fit: contain !important;
+    vertical-align: middle !important;
 }
 
 .logo-image {
