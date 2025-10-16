@@ -12,7 +12,7 @@
     <a class="btn btn-primary btn-lg" href="{% url 'admin_detailed_scores' %}" role="button">Переглянути детальні оцінки</a>
     <a class="btn btn-primary btn-lg" href="{% url 'dashboard' %}" role="button">Перейти до панелі керування</a>
     {% else %}
-    <p>Судді можуть увійти, вибрати команди для оцінювання та призначити оцінки від 0 до 10 за кожним критерієм.</p>
+    <p>Судді можуть увійти, вибрати команди для оцінювання та призначити оцінки за кожним критерієм.</p>
     {% if user.is_authenticated %}
         <a class="btn btn-primary btn-lg" href="{% url 'dashboard' %}" role="button">Перейти до панелі керування</a>
     {% else %}
