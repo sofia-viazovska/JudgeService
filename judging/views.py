@@ -45,7 +45,13 @@ def judge_team(request, team_id):
     # Get bonus criteria based on team's service
     bonus_criteria = []
     if team.service:
-        bonus_criteria = Criteria.objects.filter(type='bonus', service=team.service)
+        # Get bonus criteria based on service vector
+        if team.service == 'A':
+            bonus_criteria = Criteria.objects.filter(type='bonus_a')
+        elif team.service == 'B':
+            bonus_criteria = Criteria.objects.filter(type='bonus_b')
+        elif team.service == 'C':
+            bonus_criteria = Criteria.objects.filter(type='bonus_c')
 
     # Combine criteria lists
     all_criteria = list(main_criteria) + list(bonus_criteria)
@@ -55,7 +61,7 @@ def judge_team(request, team_id):
     for criteria in all_criteria:
         score = Score.objects.filter(judge=request.user, team=team, criteria=criteria).first()
         if score:
-            existing_scores[criteria.id] = score.checked
+            existing_scores[criteria.id] = score.value
 
     # Handle service selection form for admins
     service_form = None
@@ -73,13 +79,23 @@ def judge_team(request, team_id):
     if request.method == 'POST' and 'save_scores' in request.POST:
         # Process the submitted scores
         for criteria in all_criteria:
-            checked = request.POST.get(f'criteria_{criteria.id}') == 'on'
+            score_value = request.POST.get(f'criteria_{criteria.id}', 0)
+            try:
+                score_value = float(score_value)
+                # Ensure score is within valid range (0 to max_score)
+                score_value = max(0, min(score_value, criteria.max_score))
+            except (ValueError, TypeError):
+                score_value = 0
+
             # Update or create the score
             Score.objects.update_or_create(
                 judge=request.user,
                 team=team,
                 criteria=criteria,
-                defaults={'checked': checked}
+                defaults={
+                    'value': score_value,
+                    'checked': score_value > 0  # For backward compatibility
+                }
             )
 
         messages.success(request, f"Оцінки для {team.name} були успішно збережені.")
@@ -99,9 +115,12 @@ def results(request):
     """View to display the results/scoreboard"""
     teams = Team.objects.all()
     main_criteria = Criteria.objects.filter(type='main')
+
+    # Get bonus criteria by service vector
     bonus_criteria_by_service = {
-        service: list(Criteria.objects.filter(type='bonus', service=service))
-        for service, _ in SERVICE_CHOICES
+        'A': list(Criteria.objects.filter(type='bonus_a')),
+        'B': list(Criteria.objects.filter(type='bonus_b')),
+        'C': list(Criteria.objects.filter(type='bonus_c')),
     }
 
     results = []
@@ -111,30 +130,13 @@ def results(request):
         if team.service:
             team_criteria.extend(bonus_criteria_by_service.get(team.service, []))
 
-        # Calculate scores
-        total_score = 0
-        criteria_scores = {}
-
-        for criteria in team_criteria:
-            # Get all scores for this team and criteria
-            scores = Score.objects.filter(team=team, criteria=criteria)
-            # Calculate the percentage of judges who checked this criteria
-            total_judges = scores.count()
-            if total_judges > 0:
-                checked_count = scores.filter(checked=True).count()
-                check_percentage = checked_count / total_judges
-                # If more than 50% of judges checked it, count the points
-                if check_percentage > 0.5:
-                    criteria_scores[criteria.name] = criteria.points
-                    total_score += criteria.points
-                else:
-                    criteria_scores[criteria.name] = 0
-            else:
-                criteria_scores[criteria.name] = 0
+        # Get average scores using the Team model method
+        avg_scores = team.get_average_scores()
+        total_score = team.get_total_score()
 
         team_data = {
             'team': team,
-            'criteria_scores': criteria_scores,
+            'avg_scores': avg_scores,
             'total_score': total_score,
             'service': team.get_service_display() if team.service else "Не вибрано",
         }
@@ -143,10 +145,14 @@ def results(request):
     # Sort results by total score (descending)
     results.sort(key=lambda x: x['total_score'], reverse=True)
 
+    # Create a list of all criteria for the template
+    criteria_list = list(main_criteria)
+
     context = {
         'results': results,
         'main_criteria': main_criteria,
         'bonus_criteria_by_service': bonus_criteria_by_service,
+        'criteria_list': criteria_list,
     }
     return render(request, 'judging/results.html', context)
 
@@ -160,10 +166,14 @@ def admin_detailed_scores(request):
 
     teams = Team.objects.all()
     main_criteria = Criteria.objects.filter(type='main')
+
+    # Get bonus criteria by service vector
     bonus_criteria_by_service = {
-        service: list(Criteria.objects.filter(type='bonus', service=service))
-        for service, _ in SERVICE_CHOICES
+        'A': list(Criteria.objects.filter(type='bonus_a')),
+        'B': list(Criteria.objects.filter(type='bonus_b')),
+        'C': list(Criteria.objects.filter(type='bonus_c')),
     }
+
     judges = User.objects.filter(score__isnull=False).distinct()
 
     detailed_results = []
@@ -176,8 +186,19 @@ def admin_detailed_scores(request):
         team_data = {
             'team': team,
             'service': team.get_service_display() if team.service else "Не вибрано",
-            'judge_scores': {}
+            'judge_scores': {},
+            'criteria_averages': {},  # Track average score for each criteria
+            'criteria_list': team_criteria  # Store the list of criteria for this team
         }
+
+        # Initialize criteria averages tracking
+        for criteria in team_criteria:
+            team_data['criteria_averages'][criteria.id] = {
+                'total': 0,
+                'count': 0,
+                'average': 0,
+                'max_score': criteria.max_score
+            }
 
         # Get scores from each judge for this team
         for judge in judges:
@@ -190,21 +211,36 @@ def admin_detailed_scores(request):
                 ).first()
 
                 if score:
-                    judge_scores[criteria.name] = {
-                        'checked': score.checked,
-                        'points': criteria.points if score.checked else 0
+                    judge_scores[criteria.id] = {
+                        'value': score.value,
+                        'criteria_name': criteria.name,
+                        'max_score': criteria.max_score
                     }
+
+                    # Update average tracking
+                    team_data['criteria_averages'][criteria.id]['total'] += score.value
+                    team_data['criteria_averages'][criteria.id]['count'] += 1
                 else:
-                    judge_scores[criteria.name] = {
-                        'checked': False,
-                        'points': 0
+                    judge_scores[criteria.id] = {
+                        'value': 0,
+                        'criteria_name': criteria.name,
+                        'max_score': criteria.max_score
                     }
 
             # Calculate total score for this judge
-            total_points = sum(score['points'] for score in judge_scores.values())
+            total_points = sum(score['value'] for score in judge_scores.values())
             judge_scores['total'] = total_points
 
             team_data['judge_scores'][judge.username] = judge_scores
+
+        # Calculate average scores for each criteria
+        for criteria_id, data in team_data['criteria_averages'].items():
+            if data['count'] > 0:
+                data['average'] = data['total'] / data['count']
+
+        # Get the team's average scores and total score
+        team_data['avg_scores'] = team.get_average_scores()
+        team_data['total_score'] = team.get_total_score()
 
         detailed_results.append(team_data)
 

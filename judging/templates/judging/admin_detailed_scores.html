@@ -8,12 +8,14 @@
 
 <div class="alert alert-info">
     <p>Цей перегляд доступний лише для адміністраторів. Він показує детальні оцінки від усіх суддів для всіх команд.</p>
+    <p>Для кожного критерію показано оцінку, яку поставив кожен суддя. Загальний бал розраховується як середнє арифметичне оцінок усіх суддів за кожним критерієм, а потім сумується.</p>
 </div>
 
 {% for result in detailed_results %}
 <div class="card mb-4">
     <div class="card-header">
         <h3>{{ result.team.name }}</h3>
+        <p>Сервіс: {{ result.service }}</p>
     </div>
     <div class="card-body">
         <div class="table-responsive">
@@ -21,31 +23,44 @@
                 <thead>
                     <tr>
                         <th>Суддя</th>
-                        {% for criteria in criteria_list %}
-                            <th>{{ criteria.name }}</th>
+                        {% for criteria in result.criteria_list %}
+                            <th>
+                                {{ criteria.name }}
+                                <br><small>(макс. {{ criteria.max_score }} балів)</small>
+                                <br><span class="badge bg-info">Середнє: {{ result.criteria_averages|get_item:criteria.id|get_item:'average'|floatformat:1 }}</span>
+                            </th>
                         {% endfor %}
+                        <th>Загалом</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for judge_name, scores in result.judge_scores.items %}
                         <tr>
                             <td><strong>{{ judge_name }}</strong></td>
-                            {% for criteria in criteria_list %}
-                                <td>{{ scores|get_item:criteria.name }}</td>
+                            {% for criteria in result.criteria_list %}
+                                <td class="text-center">
+                                    <span class="{% if scores|get_item:criteria.id|get_item:'value' > 0 %}text-success{% else %}text-muted{% endif %}">
+                                        {{ scores|get_item:criteria.id|get_item:'value'|floatformat:1 }}
+                                    </span>
+                                </td>
                             {% endfor %}
+                            <td><strong>{{ scores.total|floatformat:1 }}</strong></td>
                         </tr>
                     {% endfor %}
                     <tr class="table-secondary">
-                        <td><strong>Середнє</strong></td>
-                        {% for criteria in criteria_list %}
-                            <td><strong>{{ result.team.get_average_scores|get_item:criteria.name|floatformat:1 }}</strong></td>
+                        <td><strong>Статистика</strong></td>
+                        {% for criteria in result.criteria_list %}
+                            <td class="text-center">
+                                <small>
+                                    Середнє: <strong>{{ result.criteria_averages|get_item:criteria.id|get_item:'average'|floatformat:1 }}</strong><br>
+                                    Оцінок: {{ result.criteria_averages|get_item:criteria.id|get_item:'count' }}
+                                </small>
+                            </td>
                         {% endfor %}
+                        <td><strong>{{ result.total_score|floatformat:1 }}</strong></td>
                     </tr>
                 </tbody>
             </table>
-        </div>
-        <div class="mt-3">
-            <p><strong>Загальний бал: {{ result.team.get_total_score|floatformat:1 }}</strong></p>
         </div>
     </div>
 </div>

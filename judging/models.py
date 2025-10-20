@@ -13,7 +13,9 @@ SERVICE_CHOICES = [
 # Criteria types
 CRITERIA_TYPES = [
     ('main', 'Main Criteria'),
-    ('bonus', 'Bonus Criteria'),
+    ('bonus_a', 'Bonus Criteria for Vector A'),
+    ('bonus_b', 'Bonus Criteria for Vector B'),
+    ('bonus_c', 'Bonus Criteria for Vector C'),
 ]
 
 # Create your models here.
@@ -33,7 +35,13 @@ class Team(models.Model):
         main_criteria = Criteria.objects.filter(type='main')
         bonus_criteria = []
         if self.service:
-            bonus_criteria = Criteria.objects.filter(type='bonus', service=self.service)
+            # Get bonus criteria based on service vector
+            if self.service == 'A':
+                bonus_criteria = Criteria.objects.filter(type='bonus_a')
+            elif self.service == 'B':
+                bonus_criteria = Criteria.objects.filter(type='bonus_b')
+            elif self.service == 'C':
+                bonus_criteria = Criteria.objects.filter(type='bonus_c')
 
         all_criteria = list(main_criteria) + list(bonus_criteria)
 
@@ -44,15 +52,9 @@ class Team(models.Model):
             total_judges = scores.count()
 
             if total_judges > 0:
-                # Calculate the percentage of judges who checked this criteria
-                checked_count = scores.filter(checked=True).count()
-                check_percentage = checked_count / total_judges
-
-                # If more than 50% of judges checked it, count the points
-                if check_percentage > 0.5:
-                    avg_scores[criteria.name] = criteria.points
-                else:
-                    avg_scores[criteria.name] = 0
+                # Calculate the average score for this criteria
+                avg_value = scores.aggregate(Avg('value'))['value__avg']
+                avg_scores[criteria.name] = avg_value
             else:
                 avg_scores[criteria.name] = 0
 
@@ -66,9 +68,10 @@ class Team(models.Model):
 class Criteria(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
-    type = models.CharField(max_length=5, choices=CRITERIA_TYPES, default='main', help_text="Type of criteria (main or bonus)")
+    type = models.CharField(max_length=7, choices=CRITERIA_TYPES, default='main', help_text="Type of criteria (main or bonus)")
     service = models.CharField(max_length=1, choices=SERVICE_CHOICES, blank=True, null=True, help_text="Service vector this criteria applies to (for bonus criteria)")
-    points = models.FloatField(default=0, help_text="Points awarded when this criterion is checked")
+    max_score = models.FloatField(default=10, help_text="Maximum possible score for this criterion")
+    points = models.FloatField(default=0, help_text="Legacy field - Points awarded when this criterion is checked")
 
     def __str__(self):
         return self.name
@@ -80,7 +83,8 @@ class Score(models.Model):
     judge = models.ForeignKey(User, on_delete=models.CASCADE)
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
     criteria = models.ForeignKey(Criteria, on_delete=models.CASCADE)
-    checked = models.BooleanField(default=False, help_text="Whether this criterion is checked")
+    value = models.FloatField(default=0, validators=[MinValueValidator(0)], help_text="Score value (0 to max_score)")
+    checked = models.BooleanField(default=False, help_text="Legacy field - Whether this criterion is checked")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -89,10 +93,9 @@ class Score(models.Model):
         unique_together = ('judge', 'team', 'criteria')
 
     def __str__(self):
-        status = "checked" if self.checked else "not checked"
-        return f"{self.judge.username}'s score for {self.team.name} - {self.criteria.name}: {status}"
+        return f"{self.judge.username}'s score for {self.team.name} - {self.criteria.name}: {self.value}"
 
     @property
     def score(self):
-        """Returns the score value based on whether the criterion is checked"""
-        return self.criteria.points if self.checked else 0
+        """Returns the score value"""
+        return self.value
